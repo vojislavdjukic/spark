@@ -166,6 +166,19 @@ final class ShuffleBlockFetcherIterator(
     val blockIds = req.blocks.map(_._1.toString)
 
     val address = req.address
+
+    blockIds.foreach{ blockId =>
+      logError(
+        s"""CONSUMED:
+           |BlockId: ${blockId},
+           |PartitionId: ${context.partitionId()},
+           |TaskAttemptId: ${context.taskAttemptId()}
+           |StageId: ${context.stageId()},
+           |Address: ${address}
+           |Size: ${sizeMap(blockId)}
+                 """.stripMargin)
+    }
+
     shuffleClient.fetchBlocks(address.host, address.port, address.executorId, blockIds.toArray,
       new BlockFetchingListener {
         override def onBlockFetchSuccess(blockId: String, buf: ManagedBuffer): Unit = {
